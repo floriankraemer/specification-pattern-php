@@ -124,7 +124,7 @@ final class AbstractSpecificationTest extends TestCase
             return $candidate === 'test';
         });
 
-        $result = $spec1->not($spec1);
+        $result = $spec1->not();
 
         $this->assertInstanceOf(NotSpecification::class, $result);
         $this->assertFalse($result->isSatisfiedBy('test'));
