@@ -43,8 +43,8 @@ abstract class AbstractSpecification implements SpecificationInterface
         return new OrNotSpecification($this, $other);
     }
 
-    public function not(SpecificationInterface $other): SpecificationInterface
+    public function not(): SpecificationInterface
     {
-        return new NotSpecification($other);
+        return new NotSpecification($this);
     }
 }

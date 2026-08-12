@@ -14,7 +14,9 @@
     "autoload": {
         "psr-4": {
             "Phauthentic\\Specification\\": "src/",
-            "Phauthentic\\Specification\\Examples\\ECommerce\\": "examples/ECommerce/"
+            "Phauthentic\\Specification\\Examples\\ECommerce\\": "examples/ECommerce/",
+            "Phauthentic\\Specification\\Examples\\OpenItemAccounting\\": "examples/OpenItemAccounting/",
+            "Phauthentic\\Specification\\Examples\\OpenItemAccountingGerman\\": "examples/OpenItemAccountingGerman/"
         }
     },
     "autoload-dev": {

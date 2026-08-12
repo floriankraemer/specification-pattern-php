@@ -100,24 +100,24 @@ Final Price: $1102.47 (saved $367.49)
 
 ```
 ├── Customer/
-│   ├── IsVipCustomerSpecification
-│   ├── HasLoyaltyPointsSpecification
-│   ├── AccountAgeSpecification
-│   ├── IsNewCustomerSpecification
-│   └── HasNotUsedFlashSaleRecentlySpecification
+│   ├── IsVipCustomer
+│   ├── HasLoyaltyPoints
+│   ├── AccountAge
+│   ├── IsNewCustomer
+│   └── HasNotUsedFlashSaleRecently
 ├── Product/
-│   ├── ProductCategorySpecification
-│   ├── IsNotClearanceSpecification
-│   ├── IsNotDigitalProductSpecification
-│   └── PriceRangeSpecification
+│   ├── ProductCategory
+│   ├── IsNotClearance
+│   ├── IsNotDigitalProduct
+│   └── PriceRange
 ├── Order/
-│   ├── MinimumOrderValueSpecification
-│   ├── MinimumItemCountSpecification
-│   ├── ContainsProductCategorySpecification
-│   └── IsFirstOrderSpecification
+│   ├── MinimumOrderValue
+│   ├── MinimumItemCount
+│   ├── ContainsProductCategory
+│   └── IsFirstOrder
 ├── Time/
-│   ├── DateRangeSpecification
-│   └── TimeRangeSpecification
+│   ├── DateRange
+│   └── TimeRange
 └── Campaigns/
     ├── BlackFridayVipCampaign (Composite)
     ├── LoyaltyRewardCampaign (Composite)
@@ -132,14 +132,14 @@ The Black Friday VIP Campaign demonstrates nested AND/OR logic:
 ```php
 // Black Friday VIP Campaign
 $blackFridaySpec =
-    (new IsVipCustomerSpecification(['gold', 'platinum']))
-        ->and(new MinimumOrderValueSpecification(100))
+    (new IsVipCustomer(['gold', 'platinum']))
+        ->and(new MinimumOrderValue(100))
         ->and(
-            (new ContainsProductCategorySpecification('electronics'))
-                ->or(new ContainsProductCategorySpecification('fashion'))
+            (new ContainsProductCategory('electronics'))
+                ->or(new ContainsProductCategory('fashion'))
         )
-        ->and(new AccountAgeSpecification(180, 'min'))
-        ->and(new DateRangeSpecification('2025-11-20', '2025-11-30'));
+        ->and(new AccountAge(180, 'min'))
+        ->and(new DateRange('2025-11-20', '2025-11-30'));
 ```
 
 ## 📋 Test Scenarios
@@ -156,20 +156,20 @@ The example includes diverse test cases:
 
 ### 1. **Reusability**
 Individual specifications are used across multiple campaigns:
-- `AccountAgeSpecification` used in Black Friday and Loyalty campaigns
-- `ContainsProductCategorySpecification` used in multiple promotions
+- `AccountAge` used in Black Friday and Loyalty campaigns
+- `ContainsProductCategory` used in multiple promotions
 
 ### 2. **Maintainability**
 Business rules are centralized and easy to modify:
 ```php
 // Change VIP tiers across all campaigns
-new IsVipCustomerSpecification(['gold', 'platinum', 'diamond']);
+new IsVipCustomer(['gold', 'platinum', 'diamond']);
 ```
 
 ### 3. **Testability**
 Each specification can be unit tested independently:
 ```php
-$spec = new IsVipCustomerSpecification(['gold']);
+$spec = new IsVipCustomer(['gold']);
 $this->assertTrue($spec->isSatisfiedBy($vipCustomer));
 $this->assertFalse($spec->isSatisfiedBy($regularCustomer));
 ```
@@ -204,16 +204,16 @@ class HolidaySeasonCampaign extends AbstractSpecification
 {
     public function __construct()
     {
-        $this->specification = (new DateRangeSpecification('2025-12-01', '2025-12-31'))
-            ->and(new MinimumOrderValueSpecification(75))
-            ->and(new IsNewsletterSubscriberSpecification());
+        $this->specification = (new DateRange('2025-12-01', '2025-12-31'))
+            ->and(new MinimumOrderValue(75))
+            ->and(new IsNewsletterSubscriber());
     }
 }
 ```
 
 ### Adding New Specifications
 ```php
-class IsNewsletterSubscriberSpecification extends AbstractSpecification
+class IsNewsletterSubscriber extends AbstractSpecification
 {
     public function isSatisfiedBy(mixed $candidate): bool
     {

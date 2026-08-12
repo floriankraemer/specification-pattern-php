@@ -18,10 +18,10 @@ namespace Phauthentic\Specification\Examples\ECommerce\Specifications\Campaigns;
 
 use Phauthentic\Specification\AbstractSpecification;
 use Phauthentic\Specification\Examples\ECommerce\Models\Order;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Customer\HasLoyaltyPointsSpecification;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Customer\AccountAgeSpecification;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Order\MinimumItemCountSpecification;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Product\IsNotClearanceSpecification;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Customer\HasLoyaltyPoints;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Customer\AccountAge;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Order\MinimumItemCount;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Product\IsNotClearance;
 
 /**
  * Loyalty Reward Campaign Specification
@@ -39,16 +39,16 @@ class LoyaltyRewardCampaign extends AbstractSpecification
     public function __construct()
     {
         // Customer has sufficient loyalty points
-        $loyaltySpec = new HasLoyaltyPointsSpecification(1000);
+        $loyaltySpec = new HasLoyaltyPoints(1000);
 
         // Not a new customer (account older than 30 days)
-        $accountAgeSpec = new AccountAgeSpecification(30, 'min');
+        $accountAgeSpec = new AccountAge(30, 'min');
 
         // Order has at least 3 items
-        $itemCountSpec = new MinimumItemCountSpecification(3);
+        $itemCountSpec = new MinimumItemCount(3);
 
         // No clearance products (this will be checked via Order->hasClearanceItems)
-        $notClearanceSpec = new IsNotClearanceSpecification();
+        $notClearanceSpec = new IsNotClearance();
 
         // Combine specifications - note: clearance check is handled in Order level
         $this->specification = $loyaltySpec

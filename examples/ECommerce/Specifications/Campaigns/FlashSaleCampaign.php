@@ -18,9 +18,9 @@ namespace Phauthentic\Specification\Examples\ECommerce\Specifications\Campaigns;
 
 use Phauthentic\Specification\AbstractSpecification;
 use Phauthentic\Specification\Examples\ECommerce\Models\Order;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Customer\HasNotUsedFlashSaleRecentlySpecification;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Order\ContainsProductCategorySpecification;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Time\TimeRangeSpecification;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Customer\HasNotUsedFlashSaleRecently;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Order\ContainsProductCategory;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Time\TimeRange;
 
 /**
  * Flash Sale Campaign Specification
@@ -37,13 +37,13 @@ class FlashSaleCampaign extends AbstractSpecification
     public function __construct()
     {
         // Customer hasn't used flash sale recently
-        $flashSaleCooldownSpec = new HasNotUsedFlashSaleRecentlySpecification(7);
+        $flashSaleCooldownSpec = new HasNotUsedFlashSaleRecently(7);
 
         // Limited to electronics and fashion categories
-        $categorySpec = new ContainsProductCategorySpecification(['electronics', 'fashion']);
+        $categorySpec = new ContainsProductCategory(['electronics', 'fashion']);
 
         // Time range (e.g., noon to 2 PM)
-        $timeRangeSpec = new TimeRangeSpecification('12:00', '14:00');
+        $timeRangeSpec = new TimeRange('12:00', '14:00');
 
         // Combine specifications
         $this->specification = $flashSaleCooldownSpec
@@ -58,11 +58,11 @@ class FlashSaleCampaign extends AbstractSpecification
         }
 
         // Check customer and product specifications
-        $customerProductSpec = (new HasNotUsedFlashSaleRecentlySpecification(7))
-            ->and(new ContainsProductCategorySpecification(['electronics', 'fashion']));
+        $customerProductSpec = (new HasNotUsedFlashSaleRecently(7))
+            ->and(new ContainsProductCategory(['electronics', 'fashion']));
 
         // Check time range against order creation time
-        $timeSpec = new TimeRangeSpecification('12:00', '14:00');
+        $timeSpec = new TimeRange('12:00', '14:00');
 
         return $customerProductSpec->isSatisfiedBy($candidate) &&
                $timeSpec->isSatisfiedBy($candidate->createdAt);

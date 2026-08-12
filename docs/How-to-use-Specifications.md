@@ -4,7 +4,7 @@ This document explains different approaches to using the Specification Pattern, 
 
 ## The Challenge: Specifications and Encapsulation
 
-In strict DDD, aggregates should not expose their internal properties directly. This raises the question: how can a specification check conditions on an aggregate without breaking encapsulation?
+In strict DDD, aggregates should not expose their internal properties directly. This raises the question: How can a specification check conditions on an aggregate without breaking encapsulation?
 
 ```php
 // This violates encapsulation - directly accessing internal state
@@ -109,7 +109,7 @@ use Phauthentic\Specification\AbstractSpecification;
 /**
  * Specification that delegates to the aggregate's query method
  */
-class MinimumOrderValueSpecification extends AbstractSpecification
+class MinimumOrderValue extends AbstractSpecification
 {
     public function __construct(
         private float $minimumValue
@@ -165,7 +165,7 @@ class OverdueSpecification extends AbstractSpecification
 $now = new \DateTimeImmutable();
 
 $overdue = new OverdueSpecification($now);
-$minimumValue = new MinimumOrderValueSpecification(100.00);
+$minimumValue = new MinimumOrderValue(100.00);
 $noticeSent = new NoticeSentSpecification();
 $inCollection = new InCollectionSpecification();
 
@@ -246,7 +246,7 @@ use Phauthentic\Specification\AbstractSpecification;
 /**
  * Specification operating on the read model
  */
-class MinimumOrderValueSpecification extends AbstractSpecification
+class MinimumOrderValue extends AbstractSpecification
 {
     public function __construct(
         private float $minimumValue
@@ -323,97 +323,7 @@ foreach ($ordersToCollect as $orderReadModel) {
 
 ---
 
-## Approach 3: Specifications Inside the Aggregate
-
-Some DDD practitioners argue that complex business rules should live entirely inside the aggregate. The specification pattern is not used externally; instead, the aggregate exposes a single method that encapsulates the rule.
-
-**Pros:**
-
-- All business logic in one place
-- Maximum encapsulation
-- Easy to understand and maintain for simple cases
-
-**Cons:**
-
-- Loses composability of specifications
-- Cannot easily reuse partial rules
-- Aggregate becomes responsible for query logic
-
-### Example
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Domain\Invoice;
-
-/**
- * Invoice aggregate with internal business rule
- */
-class Invoice
-{
-    private float $amount;
-    private \DateTimeImmutable $dueDate;
-    private bool $noticeSent;
-    private bool $inCollection;
-
-    public function __construct(
-        float $amount,
-        \DateTimeImmutable $dueDate
-    ) {
-        $this->amount = $amount;
-        $this->dueDate = $dueDate;
-        $this->noticeSent = false;
-        $this->inCollection = false;
-    }
-
-    /**
-     * Business rule encapsulated inside the aggregate
-     */
-    public function shouldBeSentToCollection(\DateTimeImmutable $now): bool
-    {
-        return $this->isOverdue($now)
-            && $this->noticeSent
-            && !$this->inCollection;
-    }
-
-    private function isOverdue(\DateTimeImmutable $now): bool
-    {
-        return $this->dueDate < $now;
-    }
-
-    public function markNoticeSent(): void
-    {
-        $this->noticeSent = true;
-    }
-
-    public function sendToCollection(): void
-    {
-        if (!$this->shouldBeSentToCollection(new \DateTimeImmutable())) {
-            throw new \DomainException('Invoice cannot be sent to collection');
-        }
-
-        $this->inCollection = true;
-    }
-}
-```
-
-### Usage
-
-```php
-$now = new \DateTimeImmutable();
-
-foreach ($invoices as $invoice) {
-    if ($invoice->shouldBeSentToCollection($now)) {
-        $invoice->sendToCollection();
-    }
-}
-```
-
----
-
-## Approach 4: Pragmatic Property Access
+## Approach 3: Pragmatic Property Access
 
 Many real-world implementations take a pragmatic stance: specifications are used for query/filtering logic where exposing read-only properties is acceptable. The aggregate's invariants and mutation logic remain protected, but query-related properties can be exposed via getters or public readonly properties.
 
@@ -490,7 +400,7 @@ use Phauthentic\Specification\AbstractSpecification;
 /**
  * Specification using readonly properties
  */
-class MinimumOrderValueSpecification extends AbstractSpecification
+class MinimumOrderValue extends AbstractSpecification
 {
     public function __construct(
         private float $minimumValue
@@ -556,6 +466,56 @@ foreach ($orders as $order) {
 }
 ```
 
+## Approach 4: Double Dispatch (The Purist Approach)
+
+The aggregate remains completely "blind" to its properties from the outside. Instead, the aggregate accepts the specification and "feeds" it the necessary data through a specific internal interface.
+
+**Pros:**
+
+- Zero leakage: Properties remain private and no getters are created.
+- The aggregate controls exactly what data the specification is allowed to see.
+
+**Cons:**
+
+- Requires a custom interface for the specification.
+- Slightly higher cognitive complexity.
+
+```php
+namespace App\Domain\Order;
+
+/**
+ * Interface that defines what data an Order Spec is allowed to see
+ */
+interface OrderDataInterface {
+    public function getTotalAmount(): float;
+    public function getDueDate(): \DateTimeImmutable;
+}
+
+class Order implements OrderDataInterface
+{
+    private float $totalAmount;
+    private \DateTimeImmutable $dueDate;
+
+    // The aggregate "accepts" the spec and passes itself as the data provider
+    public function satisfies(OrderSpecificationInterface $spec): bool
+    {
+        return $spec->isSatisfiedByOrder($this);
+    }
+
+    public function getTotalAmount(): float { return $this->totalAmount; }
+    public function getDueDate(): \DateTimeImmutable { return $this->dueDate; }
+}
+
+// The Specification now depends on the Interface, not the Aggregate
+class MinimumOrderValue implements OrderSpecificationInterface
+{
+    public function isSatisfiedByOrder(OrderDataInterface $order): bool
+    {
+        return $order->getTotalAmount() >= $this->minimumValue;
+    }
+}
+```
+
 ---
 
 ## Choosing the Right Approach
@@ -564,12 +524,12 @@ foreach ($orders as $order) {
 |----------|----------|------------|
 | **Query Methods** | Strict DDD, complex aggregates | Many specifications needed (interface bloat) |
 | **Read Models (CQRS)** | Large systems, complex queries, event sourcing | Simple applications, tight deadlines |
-| **Internal to Aggregate** | Simple, non-composable rules | Rules need to be reused or combined |
 | **Pragmatic Access** | Filtering, simple domains, rapid development | Strict encapsulation requirements |
+| **Double Dispatch** | High encapsulation, shared logic | Overkill for simple logic; adds boilerplate |
 
 ## Combining Approaches
 
-These approaches are not mutually exclusive. A common pattern is:
+These approaches are not mutually exclusive. A common pattern is to use Read Models for UI filtering (performance) and Query Methods or Double Dispatch for domain-critical business rules inside your services. A common pattern is:
 
 1. Use **Read Models** for complex queries and filtering (e.g., search, reports)
 2. Use **Query Methods** for domain-critical business rules

@@ -36,7 +36,7 @@ interface SpecificationInterface
     public function orNot(SpecificationInterface $other): SpecificationInterface;
 
     /**
-     * Not operator
+     * Returns a specification that is satisfied when this specification is not.
      */
-    public function not(SpecificationInterface $other): SpecificationInterface;
+    public function not(): SpecificationInterface;
 }

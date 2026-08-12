@@ -18,10 +18,10 @@ namespace Phauthentic\Specification\Examples\ECommerce\Specifications\Campaigns;
 
 use Phauthentic\Specification\AbstractSpecification;
 use Phauthentic\Specification\Examples\ECommerce\Models\Order;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Customer\IsNewCustomerSpecification;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Order\MinimumOrderValueSpecification;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Order\IsFirstOrderSpecification;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Product\IsNotDigitalProductSpecification;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Customer\IsNewCustomer;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Order\MinimumOrderValue;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Order\IsFirstOrder;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Product\IsNotDigitalProduct;
 
 /**
  * First Purchase Discount Campaign Specification
@@ -39,16 +39,16 @@ class FirstPurchaseCampaign extends AbstractSpecification
     public function __construct()
     {
         // New customer (account created within 30 days)
-        $newCustomerSpec = new IsNewCustomerSpecification(30);
+        $newCustomerSpec = new IsNewCustomer(30);
 
         // First order
-        $firstOrderSpec = new IsFirstOrderSpecification();
+        $firstOrderSpec = new IsFirstOrder();
 
         // Minimum order value
-        $minValueSpec = new MinimumOrderValueSpecification(50.0);
+        $minValueSpec = new MinimumOrderValue(50.0);
 
         // Excludes digital products and gift cards (handled at Order level)
-        $notDigitalSpec = new IsNotDigitalProductSpecification();
+        $notDigitalSpec = new IsNotDigitalProduct();
 
         // Combine specifications
         $this->specification = $newCustomerSpec

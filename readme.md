@@ -53,6 +53,28 @@ foreach ($service->getInvoices() as $invoice) {
 
 Each specification encapsulates a single business rule check (e.g., `OverDueSpecification` checks if `$invoice->dueDate < now()`). The pattern allows combining these atomic rules using boolean logic (`and`, `or`, `not`, `andNot`, `orNot`) to form complex, readable business rules that can be reused and unit tested independently.
 
+## Examples
+
+* [ECommerce](examples/ECommerce/README.md) — promotional eligibility rules composed over an `Order` read model.
+* [OpenItemAccounting](examples/OpenItemAccounting/README.md) — a dunning process composed over a real `LedgerAccount` DDD aggregate, its `Posting`s, and `OpenItem`s.
+* [OpenItemAccountingGerman](examples/OpenItemAccountingGerman/README.md) — the same dunning process, fully in German (class names, identifiers, and comments).
+
+## Specifications and DDD aggregates
+
+Specifications read an aggregate's state through its public getters; they don't need write access.
+That's fine, and matches how this library's examples model aggregates.
+
+Public getters aren't the invariant risk — public setters are.
+An aggregate like `OpenItem` in the [OpenItemAccounting example](examples/OpenItemAccounting/README.md) exposes its identity and immutable fields as `public readonly` properties, and keeps every mutable field (`openAmount`, `status`, `currentDunningLevel`, ...) private behind read-only getters and `@internal`-tagged mutator methods (`applyPayment()`, etc.) meant to be called only by the owning aggregate.
+PHP has no `internal` keyword, so this boundary is enforced by convention and docblocks rather than by the compiler — but the shape is the same: reads stay open, writes stay locked down to the aggregate itself.
+
+Keep the responsibilities split:
+
+* **Specifications** — read-only predicates over already-consistent state: eligibility checks, query filters, dunning-level rules. Composable, unit-testable in isolation, no side effects.
+* **Aggregate methods** — state transitions and invariant enforcement: whether a payment *can* be applied, and applying it. These stay internal to the aggregate, not modeled as specifications.
+
+If a "check" starts wanting to mutate the aggregate to answer its question, that's a sign the logic belongs inside the aggregate, not in a specification.
+
 ## License
 
 This library is under the MIT license.

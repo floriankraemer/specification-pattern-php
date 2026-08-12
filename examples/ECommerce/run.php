@@ -285,7 +285,8 @@ function runDemo(): void
 
     // Test each order
     foreach ($orders as $index => $order) {
-        echo sprintf("Testing Order #%d: %s\n\n",
+        echo sprintf(
+            "Testing Order #%d: %s\n\n",
             $index + 1,
             formatOrderDetails($order)
         );
@@ -322,11 +323,13 @@ function runDemo(): void
         if ($bestPromotion) {
             $discount = $bestPromotion->calculateDiscount($order->totalAmount);
             $finalPrice = $bestPromotion->calculateFinalPrice($order->totalAmount);
-            echo sprintf("Best Discount: %d%% (%s)\n",
+            echo sprintf(
+                "Best Discount: %d%% (%s)\n",
                 $bestPromotion->discountPercentage,
                 $bestPromotion->name
             );
-            echo sprintf("Final Price: $%.2f (saved $%.2f)\n",
+            echo sprintf(
+                "Final Price: $%.2f (saved $%.2f)\n",
                 $finalPrice,
                 $discount
             );
