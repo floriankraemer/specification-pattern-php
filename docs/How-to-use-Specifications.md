@@ -4,7 +4,7 @@ This document explains different approaches to using the Specification Pattern, 
 
 ## The Challenge: Specifications and Encapsulation
 
-In strict DDD, aggregates should not expose their internal properties directly. This raises the question: how can a specification check conditions on an aggregate without breaking encapsulation?
+In strict DDD, aggregates should not expose their internal properties directly. This raises the question: How can a specification check conditions on an aggregate without breaking encapsulation?
 
 ```php
 // This violates encapsulation - directly accessing internal state
@@ -529,7 +529,7 @@ class MinimumOrderValueSpecification implements OrderSpecificationInterface
 
 ## Combining Approaches
 
-These approaches are not mutually exclusive. A common pattern is:
+These approaches are not mutually exclusive. A common pattern is to use Read Models for UI filtering (performance) and Query Methods or Double Dispatch for domain-critical business rules inside your services. A common pattern is:
 
 1. Use **Read Models** for complex queries and filtering (e.g., search, reports)
 2. Use **Query Methods** for domain-critical business rules
