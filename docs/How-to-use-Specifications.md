@@ -109,7 +109,7 @@ use Phauthentic\Specification\AbstractSpecification;
 /**
  * Specification that delegates to the aggregate's query method
  */
-class MinimumOrderValueSpecification extends AbstractSpecification
+class MinimumOrderValue extends AbstractSpecification
 {
     public function __construct(
         private float $minimumValue
@@ -165,7 +165,7 @@ class OverdueSpecification extends AbstractSpecification
 $now = new \DateTimeImmutable();
 
 $overdue = new OverdueSpecification($now);
-$minimumValue = new MinimumOrderValueSpecification(100.00);
+$minimumValue = new MinimumOrderValue(100.00);
 $noticeSent = new NoticeSentSpecification();
 $inCollection = new InCollectionSpecification();
 
@@ -246,7 +246,7 @@ use Phauthentic\Specification\AbstractSpecification;
 /**
  * Specification operating on the read model
  */
-class MinimumOrderValueSpecification extends AbstractSpecification
+class MinimumOrderValue extends AbstractSpecification
 {
     public function __construct(
         private float $minimumValue
@@ -400,7 +400,7 @@ use Phauthentic\Specification\AbstractSpecification;
 /**
  * Specification using readonly properties
  */
-class MinimumOrderValueSpecification extends AbstractSpecification
+class MinimumOrderValue extends AbstractSpecification
 {
     public function __construct(
         private float $minimumValue
@@ -507,7 +507,7 @@ class Order implements OrderDataInterface
 }
 
 // The Specification now depends on the Interface, not the Aggregate
-class MinimumOrderValueSpecification implements OrderSpecificationInterface
+class MinimumOrderValue implements OrderSpecificationInterface
 {
     public function isSatisfiedByOrder(OrderDataInterface $order): bool
     {

@@ -18,11 +18,11 @@ namespace Phauthentic\Specification\Examples\ECommerce\Specifications\Campaigns;
 
 use Phauthentic\Specification\AbstractSpecification;
 use Phauthentic\Specification\Examples\ECommerce\Models\Order;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Customer\IsVipCustomerSpecification;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Customer\AccountAgeSpecification;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Order\MinimumOrderValueSpecification;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Order\ContainsProductCategorySpecification;
-use Phauthentic\Specification\Examples\ECommerce\Specifications\Time\DateRangeSpecification;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Customer\IsVipCustomer;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Customer\AccountAge;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Order\MinimumOrderValue;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Order\ContainsProductCategory;
+use Phauthentic\Specification\Examples\ECommerce\Specifications\Time\DateRange;
 
 /**
  * Black Friday VIP Campaign Specification
@@ -41,21 +41,21 @@ class BlackFridayVipCampaign extends AbstractSpecification
     public function __construct()
     {
         // Customer must be VIP
-        $vipSpec = new IsVipCustomerSpecification(['gold', 'platinum']);
+        $vipSpec = new IsVipCustomer(['gold', 'platinum']);
 
         // Order minimum value
-        $minValueSpec = new MinimumOrderValueSpecification(100.0);
+        $minValueSpec = new MinimumOrderValue(100.0);
 
         // Contains electronics or fashion products
-        $electronicsSpec = new ContainsProductCategorySpecification(['electronics']);
-        $fashionSpec = new ContainsProductCategorySpecification(['fashion']);
+        $electronicsSpec = new ContainsProductCategory(['electronics']);
+        $fashionSpec = new ContainsProductCategory(['fashion']);
         $categorySpec = $electronicsSpec->or($fashionSpec);
 
         // Account older than 6 months (180 days)
-        $accountAgeSpec = new AccountAgeSpecification(180, 'min');
+        $accountAgeSpec = new AccountAge(180, 'min');
 
         // Valid during Black Friday period
-        $dateRangeSpec = new DateRangeSpecification('2025-11-20', '2025-11-30');
+        $dateRangeSpec = new DateRange('2025-11-20', '2025-11-30');
 
         // Combine all specifications for the order
         $this->specification = $vipSpec
@@ -72,16 +72,15 @@ class BlackFridayVipCampaign extends AbstractSpecification
         }
 
         // Check individual specifications for debugging
-        $vipSpec = new IsVipCustomerSpecification(['gold', 'platinum']);
-        $minValueSpec = new MinimumOrderValueSpecification(100.0);
-        $electronicsSpec = new ContainsProductCategorySpecification(['electronics']);
-        $fashionSpec = new ContainsProductCategorySpecification(['fashion']);
+        $vipSpec = new IsVipCustomer(['gold', 'platinum']);
+        $minValueSpec = new MinimumOrderValue(100.0);
+        $electronicsSpec = new ContainsProductCategory(['electronics']);
+        $fashionSpec = new ContainsProductCategory(['fashion']);
         $categorySpec = $electronicsSpec->or($fashionSpec);
-        $accountAgeSpec = new AccountAgeSpecification(180, 'min');
-        $dateSpec = new DateRangeSpecification('2025-11-20', '2025-11-30');
+        $accountAgeSpec = new AccountAge(180, 'min');
+        $dateSpec = new DateRange('2025-11-20', '2025-11-30');
 
         // All specifications checked individually for clarity
-
         return $vipSpec->isSatisfiedBy($candidate) &&
                $minValueSpec->isSatisfiedBy($candidate) &&
                $categorySpec->isSatisfiedBy($candidate) &&
